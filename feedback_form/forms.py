@@ -26,12 +26,14 @@ class FeedbackForm(forms.ModelForm):
         if user:
             self.instance.user = user
             del self.fields['email']
+            self.instance.email = str(user.email) if hasattr(user, "email") else settings.FROM_EMAIL
         else:
             self.fields['email'].required = True
 
     def save(self):
         if not self.cleaned_data.get('url'):
             self.instance.content_object = self.content_object
+
             obj = super(FeedbackForm, self).save()
             send_email(
                 '',
@@ -42,7 +44,7 @@ class FeedbackForm(forms.ModelForm):
                 },
                 'feedback_form/email/subject.html',
                 'feedback_form/email/body.html',
-                from_email=settings.FROM_EMAIL,
+                from_email=self.instance.email,
                 recipients=[manager[1] for manager in settings.MANAGERS],
             )
             return obj

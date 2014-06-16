@@ -1,11 +1,21 @@
 function hideForm(mobile) {
-    $('#feedbackForm').fadeOut('fast', function() {
+    if ($('#id-feedback-form-modal').length > 0){
+        $('#id-feedback-form-modal').modal('hide');
         if (mobile) {
             $('#feedbackSnippet').animate({bottom: '-4'});
         } else {
             $('#feedbackSnippet').animate({left: '-4'});
         }
-    });
+    }
+    else{
+        $('#feedbackForm').fadeOut('fast', function() {
+            if (mobile) {
+                $('#feedbackSnippet').animate({bottom: '-4'});
+            } else {
+                $('#feedbackSnippet').animate({left: '-4'});
+            }
+        });
+    }
 }
 
 function initiateForm(mobile) {
@@ -22,7 +32,7 @@ function initiateForm(mobile) {
     $('#feedbackForm').submit(function() {
         var form = $(this);
         $.post(form.attr('action'), form.serializeArray(), function(data) {
-            if (data.toLowerCase().indexOf('errorlist') == -1) {
+            if (data.toLowerCase().indexOf('errorlist') == -1 && data.toLowerCase().indexOf('has-error') == -1) {
                 hideForm(mobile);
                 if (mobile) {
                     $('#feedbackSuccess').fadeIn().delay(2000).animate({bottom: '-500'}).fadeOut().animate({bottom: '40'});
@@ -43,10 +53,18 @@ function initiateForm(mobile) {
         } else {
             $(this).animate({left: '-100'});
         }
-        $('#feedbackForm').fadeIn();
-        $('html').click(function() {
-            hideForm(mobile);
-         });
+
+        if ($('#id-feedback-form-modal').length > 0){
+            $('#id-feedback-form-modal').modal({
+                        keyboard: false,
+                        backdrop: 'static'
+                    });
+        }
+        else{
+            $('html').click(function() {
+                hideForm(mobile);
+            });
+        }
 
          $('#feedbackForm').click(function(event){
             event.stopPropagation();
